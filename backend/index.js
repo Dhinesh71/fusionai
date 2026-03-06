@@ -8,7 +8,7 @@ require('dotenv').config();
 const { runWorkflow } = require('./workflow-engine');
 const db = require('./database');
 const { extractText } = require('./file-parser');
-const { generateConditionLogic, generateWorkflowFromPrompt, processAITask } = require('./ai');
+const { generateConditionLogic, generateWorkflowFromPrompt, processAITask, dashboardAssistant } = require('./ai');
 
 // Multer — store file in memory for parsing
 const upload = multer({
@@ -257,6 +257,18 @@ app.post('/api/ai/automate', upload.single('file'), async (req, res) => {
     res.json({ success: true, ...results });
   } catch (err) {
     console.error('[AIAutomateTask]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Teacher: Dashboard Helper Chatbot
+app.post('/api/ai/dashboard-chat', async (req, res) => {
+  const { messages, context } = req.body;
+  if (!messages) return res.status(400).json({ error: 'Messages required' });
+  try {
+    const response = await dashboardAssistant(messages, context);
+    res.json({ response });
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });

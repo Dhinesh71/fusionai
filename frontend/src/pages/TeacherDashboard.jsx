@@ -8,6 +8,7 @@ import {
     Mail, Lock, User, MessageSquare, Paperclip, UploadCloud, FileText, FileSpreadsheet,
     AlertTriangle, CheckCircle2, Phone, Home, Building2, Hash, BookMarked, Layers, Download, ClipboardList
 } from 'lucide-react';
+import DashboardChatbot from '../components/DashboardChatbot';
 
 const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
@@ -556,12 +557,13 @@ export default function TeacherDashboard() {
                         <button onClick={fetchAll} style={S.refreshBtn} title="Refresh">
                             <RefreshCcw size={16} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
                         </button>
-                        {(tab === 'students' || tab === 'student-details' || tab === 'announcements') && (
-                            <button onClick={() => { setShowAIModal(true); setAiResult(null); setAiError(''); setAiFile(null); setAiInstruction(''); }}
-                                style={{ ...S.primaryBtn, background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', boxShadow: '0 4px 18px rgba(124,58,237,0.45)' }}>
-                                <Wand2 size={16} />AI Smart Import
-                            </button>
-                        )}
+                        <DashboardChatbot context={{
+                            totalStudents: students.length,
+                            totalSubmissions: submissions.length,
+                            runningWorkflows: workflows.filter(w => w.status === 'running').length,
+                            averageScore: stats.average,
+                            recentAnnouncements: announcements.length
+                        }} />
                         {tab === 'automation' && (
                             <button onClick={() => navigate('/builder')} style={S.primaryBtn}>
                                 <Plus size={16} />Create Workflow

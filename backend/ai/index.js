@@ -150,4 +150,43 @@ async function processAITask(taskType, inputData) {
     return { result: "Task complete" };
 }
 
-module.exports = { executePrompt, generateConditionLogic, generateWorkflowFromPrompt, processAITask };
+async function dashboardAssistant(messages, context = {}) {
+    const systemPrompt = `You are the FusionFlow AI Guide. DO NOT just explain how to use the dashboard; instead, use the LIVE DATA provided below to answer the user's questions directly.
+
+LIVE DASHBOARD DATA:
+- Total Students: ${context.totalStudents || 0}
+- Total Submissions: ${context.totalSubmissions || 0}
+- Running Workflows: ${context.runningWorkflows || 0}
+- Class Average Score: ${context.averageScore || 'N/A'}
+- Recent Announcements: ${context.recentAnnouncements || 0}
+
+STRICT RULES:
+1. ANSWER DIRECTLY: If the user asks "how many students", answer with the number from LIVE DATA.
+2. CONCISE: Keep answers under 40 words.
+3. FORMAT: Use a short sentence or bullet points.
+4. If the data isn't in LIVE DATA, only then explain how to find it.
+
+Example:
+User: "How many students are enrolled?"
+AI: "You have ${context.totalStudents || 0} students enrolled in your class."`;
+
+    if (process.env.GROQ_API_KEY === 'dummy_key' || !process.env.GROQ_API_KEY) {
+        return "I am the FusionFlow AI Guide (Offline Mode). I can help you with submissions, announcements, and automation set-up!";
+    }
+
+    try {
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                { role: "system", content: systemPrompt },
+                ...messages
+            ]
+        });
+        return completion.choices[0]?.message?.content || "I'm sorry, I couldn't process that.";
+    } catch (err) {
+        console.error("Dashboard Chat AI Error:", err);
+        throw err;
+    }
+}
+
+module.exports = { executePrompt, generateConditionLogic, generateWorkflowFromPrompt, processAITask, dashboardAssistant };
