@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor Files
+.vscode/
+.idea/
+.DS_Store
+
+# Build Output (if any)
+dist/
+build/
+
+# Whatsapp Web JS
+.wwebjs_auth/
+.wwebjs_cache/
